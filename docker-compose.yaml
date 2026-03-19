@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: wordle
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/wordle
+      RAILS_ENV: production
+      SECRET_KEY_BASE: dummy-secret-key-base-for-development-only
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:8080
+    environment:
+      API_URL: http://backend:8080
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
