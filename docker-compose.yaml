@@ -1,7 +1,6 @@
 services:
   db:
-    build:
-      context: ./backend/sql
+    image: postgres:16
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: wordle

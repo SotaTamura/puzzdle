@@ -1,0 +1,18 @@
+# Ignore logs and temporary files
+log/
+tmp/
+
+# Ignore local development files
+*.swp
+*.swo
+*~
+
+# Ignore test files
+test/
+spec/
+
+# Ignore coverage
+coverage/
+
+# Ignore local environment files
+.env*.local

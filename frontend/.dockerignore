@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+.react-router/
+build/
+
+# Logs
+*.log
+
+# Environment files
+.env*.local
+
+# Editor files
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
