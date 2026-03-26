@@ -10,26 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_19_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_25_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
-  create_table "scores", force: :cascade do |t|
-    t.integer "attempts", null: false
+  create_table "puzzles", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.string "player_name", null: false
-    t.boolean "solved", default: false, null: false
-    t.datetime "updated_at", null: false
-    t.bigint "word_id", null: false
-    t.index ["word_id"], name: "index_scores_on_word_id"
-  end
-
-  create_table "words", force: :cascade do |t|
     t.date "date", null: false
-    t.string "word", null: false
-    t.index ["date"], name: "index_words_on_date", unique: true
-    t.index ["word"], name: "index_words_on_word", unique: true
+    t.integer "horizontal", default: 0, null: false
+    t.integer "order", default: [], null: false, array: true
+    t.datetime "updated_at", null: false
+    t.integer "vertical", default: 0, null: false
+    t.index ["date"], name: "index_puzzles_on_date", unique: true
   end
-
-  add_foreign_key "scores", "words"
 end

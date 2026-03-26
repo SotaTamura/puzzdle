@@ -1,135 +1,258 @@
-import { useEffect, useRef, useState } from "react";
-import { useFetcher } from "react-router";
+import { useState, useRef } from "react";
 import type { Route } from "./+types/home";
 
-type HintResult = "correct" | "present" | "absent";
+const W = 5;
+const H = 5;
 
-const MAX_ATTEMPTS = 6;
+type PuzzleResponse = {
+  date: string;
+  puzzle: {
+    vertical: number;
+    horizontal: number;
+    order: number[];
+  };
+};
+
+type LoaderData =
+  | {
+      status: "ready";
+      puzzleResponse: PuzzleResponse;
+    }
+  | {
+      status: "missing";
+    };
+
+type Piece = Record<"t" | "b" | "l" | "r", "bump" | "dent" | "flat"> &
+  Record<"id", number>;
+type EdgeShape = Piece["t"];
+
+const topEdge = (shape: EdgeShape) => {
+  if (shape === "flat") return "L100 0";
+  if (shape === "bump")
+    return "L35 0 C40 0 40 -14 50 -14 C60 -14 60 0 65 0 L100 0";
+  return "L35 0 C40 0 40 14 50 14 C60 14 60 0 65 0 L100 0";
+};
+
+const rightEdge = (shape: EdgeShape) => {
+  if (shape === "flat") return "L100 100";
+  if (shape === "bump")
+    return "L100 35 C100 40 114 40 114 50 C114 60 100 60 100 65 L100 100";
+  return "L100 35 C100 40 86 40 86 50 C86 60 100 60 100 65 L100 100";
+};
+
+const bottomEdge = (shape: EdgeShape) => {
+  if (shape === "flat") return "L0 100";
+  if (shape === "bump")
+    return "L65 100 C60 100 60 114 50 114 C40 114 40 100 35 100 L0 100";
+  return "L65 100 C60 100 60 86 50 86 C40 86 40 100 35 100 L0 100";
+};
+
+const leftEdge = (shape: EdgeShape) => {
+  if (shape === "flat") return "L0 0";
+  if (shape === "bump")
+    return "L0 65 C0 60 -14 60 -14 50 C-14 40 0 40 0 35 L0 0";
+  return "L0 65 C0 60 14 60 14 50 C14 40 0 40 0 35 L0 0";
+};
+
+const piecePath = (piece: Piece) =>
+  `M0 0 ${topEdge(piece.t)} ${rightEdge(piece.r)} ${bottomEdge(piece.b)} ${leftEdge(piece.l)} Z`;
+
+function JigsawPiece({
+  piece,
+  index,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  isDragging,
+  isComplete,
+  showDebugNumbers,
+}: {
+  piece: Piece;
+  index: number;
+  onDragStart: (index: number) => void;
+  onDragOver: (e: React.DragEvent, index: number) => void;
+  onDrop: (index: number) => void;
+  isDragging: boolean;
+  isComplete: boolean;
+  showDebugNumbers: boolean;
+}) {
+  return (
+    <div
+      draggable={!isComplete}
+      onDragStart={() => onDragStart(index)}
+      onDragOver={(e) => onDragOver(e, index)}
+      onDrop={() => onDrop(index)}
+      className={`relative rounded-md p-1 transition-all duration-700 ${
+        isComplete
+          ? "scale-[1.5] cursor-default"
+          : isDragging
+            ? "opacity-40 scale-95 cursor-move"
+            : "hover:bg-base-100/60 hover:scale-105 cursor-move"
+      }`}
+    >
+      <svg viewBox="-20 -20 140 140" className="h-24 w-24">
+        <path
+          d={piecePath(piece)}
+          fill="hsl(var(--b2))"
+          stroke="hsl(var(--bc) / 0.7)"
+          strokeWidth="4"
+        />
+      </svg>
+      {showDebugNumbers && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-2xl font-bold text-white">{piece.id}</span>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export async function loader(_args: Route.LoaderArgs) {
-	const apiUrl = process.env.API_URL ?? "http://localhost:8080";
-	const res = await fetch(`${apiUrl}/api/wordle/today`);
-	if (!res.ok) throw new Error("Failed to get today's word");
-	const data: { id: number; length: number; date: string } = await res.json();
-	return { wordLength: data.length, date: data.date };
-}
+  const apiUrl = process.env.API_URL ?? "http://localhost:8080";
+  const res = await fetch(`${apiUrl}/api/puzzle/today`);
+  if (res.status === 404) {
+    return { status: "missing" } satisfies LoaderData;
+  }
+  if (!res.ok) throw new Error("Failed to get today's puzzle");
 
-export async function action({ request }: Route.ActionArgs) {
-	const apiUrl = process.env.API_URL ?? "http://localhost:8080";
-	const formData = await request.formData();
-	const guess = formData.get("guess");
-	if (typeof guess !== "string" || guess.length === 0) {
-		return { error: "Invalid guess" };
-	}
-
-	const res = await fetch(`${apiUrl}/api/wordle/guess`, {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ guess }),
-	});
-	if (!res.ok) {
-		return { error: "Failed to submit guess" };
-	}
-
-	const data: { result: HintResult[]; correct: boolean } = await res.json();
-	return { guess, result: data.result, correct: data.correct };
-}
-
-function cellColor(hint: HintResult | undefined): string {
-	if (hint === "correct") return "#538d4e";
-	if (hint === "present") return "#b59f3b";
-	return "#3a3a3c";
+  const data: PuzzleResponse = await res.json();
+  return { status: "ready", puzzleResponse: data } satisfies LoaderData;
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-	const { wordLength } = loaderData;
-	const [currentGuess, setCurrentGuess] = useState("");
+  if (loaderData.status === "missing") {
+    return (
+      <>
+        <h1 className="mb-6 text-3xl font-bold tracking-widest">Puzzle</h1>
+        <p className="text-center text-base-content/80">
+          Today&apos;s puzzle is not available yet. Please try again later.
+        </p>
+      </>
+    );
+  }
 
-	const fetcher = useFetcher<typeof action>();
+  const { date, puzzle } = loaderData.puzzleResponse;
+  let id = 0;
+  let pieces: Piece[] = Array.from({ length: W * H }, () => {
+    return { t: "flat", b: "flat", l: "flat", r: "flat", id: id++ };
+  });
+  const piecesWithL = pieces.filter((_, i) => i % W !== 0);
+  const piecesWithR = pieces.filter((_, i) => (i + 1) % W !== 0);
+  const piecesWithT = pieces.filter((_, i) => i >= W);
+  const piecesWithB = pieces.filter((_, i) => i <= W * (H - 1) - 1);
+  for (let i = 0; i < (W - 1) * H; i++) {
+    const vData = (puzzle.vertical >> i) & 1;
+    piecesWithR[i].r = vData ? "bump" : "dent";
+    piecesWithL[i].l = vData ? "dent" : "bump";
+  }
+  for (let i = 0; i < W * (H - 1); i++) {
+    const hData = (puzzle.horizontal >> i) & 1;
+    piecesWithB[i].b = hData ? "bump" : "dent";
+    piecesWithT[i].t = hData ? "dent" : "bump";
+  }
 
-	// Build game state from accumulated fetcher results
-	const historyRef = useRef<{ guess: string; result: HintResult[] }[]>([]);
+  const [currentPieces, setCurrentPieces] = useState<Piece[]>(
+    puzzle.order.map((i) => pieces[i]),
+  );
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [isComplete, setIsComplete] = useState<boolean>(false);
+  const [time, setTime] = useState<string | null>(null);
 
-	// When fetcher completes with success, append to history
-	if (fetcher.data && !("error" in fetcher.data) && fetcher.state === "idle") {
-		const last = historyRef.current[historyRef.current.length - 1];
-		if (!last || last.guess !== fetcher.data.guess) {
-			historyRef.current = [
-				...historyRef.current,
-				{ guess: fetcher.data.guess, result: fetcher.data.result },
-			];
-		}
-	}
+  const { current: startTime } = useRef<Date>(new Date());
 
-	const history = historyRef.current;
-	const guesses = history.map((h) => h.guess);
-	const hints = history.map((h) => h.result);
-	const error = fetcher.data && "error" in fetcher.data ? fetcher.data.error : "";
-	const gameWon = history.some((h) => h.result.every((r) => r === "correct"));
-	const gameOver = gameWon || history.length >= MAX_ATTEMPTS;
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
 
-	useEffect(() => {
-		function handleKeydown(e: KeyboardEvent) {
-			if (gameOver || fetcher.state !== "idle") return;
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
 
-			if (e.key === "Enter") {
-				if (currentGuess.length !== wordLength) return;
-				fetcher.submit({ guess: currentGuess.toLowerCase() }, { method: "post" });
-				setCurrentGuess("");
-			} else if (e.key === "Backspace") {
-				setCurrentGuess((prev) => prev.slice(0, -1));
-			} else if (/^[a-zA-Z]$/.test(e.key)) {
-				setCurrentGuess((prev) => (prev.length < wordLength ? prev + e.key.toLowerCase() : prev));
-			}
-		}
+  const handleDrop = (dropIndex: number) => {
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDraggedIndex(null);
+      return;
+    }
 
-		window.addEventListener("keydown", handleKeydown);
-		return () => window.removeEventListener("keydown", handleKeydown);
-	}, [gameOver, wordLength, currentGuess, fetcher]);
+    // Swap the pieces
+    const newPieces = [...currentPieces];
+    [newPieces[draggedIndex], newPieces[dropIndex]] = [
+      newPieces[dropIndex],
+      newPieces[draggedIndex],
+    ];
+    setCurrentPieces(newPieces);
+    setDraggedIndex(null);
 
-	return (
-		<>
-			<h1 className="text-3xl tracking-widest mb-6 font-bold">Wordle</h1>
+    // Check if puzzle is complete after updating state
+    setTimeout(() => checkComplete(newPieces), 0);
+  };
 
-			{error ? (
-				<p className="text-error">{error}</p>
-			) : (
-				<>
-					<div className="flex flex-col gap-1.5">
-						{Array.from({ length: MAX_ATTEMPTS }, (_, row) => (
-							<div key={row} className="flex gap-1.5">
-								{Array.from({ length: wordLength }, (_, col) => {
-									const letter =
-										row < guesses.length
-											? guesses[row][col]
-											: row === guesses.length
-												? (currentGuess[col] ?? "")
-												: "";
-									const hint = row < hints.length ? hints[row][col] : undefined;
+  const checkComplete = (piecesToCheck: Piece[]) => {
+    const piecesWithL = piecesToCheck.filter((_, i) => i % W !== 0);
+    const piecesWithR = piecesToCheck.filter((_, i) => (i + 1) % W !== 0);
+    const piecesWithT = piecesToCheck.filter((_, i) => i >= W);
+    const piecesWithB = piecesToCheck.filter((_, i) => i <= W * (H - 1) - 1);
+    for (let i = 0; i < (W - 1) * H; i++) {
+      if (
+        !(
+          (piecesWithR[i].r === "bump" && piecesWithL[i].l === "dent") ||
+          (piecesWithR[i].r === "dent" && piecesWithL[i].l === "bump")
+        )
+      )
+        return;
+    }
+    for (let i = 0; i < W * (H - 1); i++) {
+      if (
+        !(
+          (piecesWithB[i].b === "bump" && piecesWithT[i].t === "dent") ||
+          (piecesWithB[i].b === "dent" && piecesWithT[i].t === "bump")
+        )
+      )
+        return;
+    }
+    setIsComplete(true);
+    const endTime = new Date();
+    const timeDiff = endTime.getTime() - startTime.getTime();
+    const totalSeconds = Math.floor(timeDiff / 1000);
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    setTime(
+      String(h).padStart(2, "0") +
+        ":" +
+        String(m).padStart(2, "0") +
+        ":" +
+        String(s).padStart(2, "0"),
+    );
+  };
 
-									return (
-										<div
-											key={col}
-											className="w-14 h-14 border-2 border-base-content/20 flex items-center justify-center text-3xl font-bold uppercase"
-											style={{
-												backgroundColor: row < hints.length ? cellColor(hint) : undefined,
-											}}
-										>
-											{letter}
-										</div>
-									);
-								})}
-							</div>
-						))}
-					</div>
+  return (
+    <>
+      <h1 className="mb-6 text-3xl font-bold tracking-widest">PUZZDLE</h1>
+      <p className="mb-4">Date: {date}</p>
 
-					{gameOver && (
-						<p className="mt-6 text-lg">
-							{gameWon ? `Solved in ${guesses.length} attempt(s)!` : "Game over!"}
-						</p>
-					)}
-				</>
-			)}
-		</>
-	);
+      <div
+        className={`mb-6 grid grid-cols-5 rounded-lg bg-base-200 p-3 transition-all duration-700 ${
+          isComplete ? "gap-0" : "gap-3"
+        }`}
+      >
+        {currentPieces.map((piece, index) => (
+          <JigsawPiece
+            key={`${piece.id}-${index}`}
+            piece={piece}
+            index={index}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            isDragging={draggedIndex === index}
+            isComplete={isComplete}
+            showDebugNumbers={process.env.NODE_ENV === "development"}
+          />
+        ))}
+      </div>
+      {isComplete && (
+        <div className="mt-6 text-3xl font-bold">Time: {time}</div>
+      )}
+    </>
+  );
 }
