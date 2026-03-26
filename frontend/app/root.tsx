@@ -7,12 +7,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
-				<title>Wordle</title>
+				<title>Puzzdle</title>
 				<Meta />
 				<Links />
 			</head>
 			<body>
-				<main className="flex flex-col items-center min-h-dvh p-4 bg-neutral text-neutral-content">
+				<main className="flex flex-col items-center min-h-dvh px-2 py-4 sm:p-4 md:p-6 bg-neutral text-neutral-content">
 					{children}
 				</main>
 				<ScrollRestoration />
