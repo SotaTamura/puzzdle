@@ -63,9 +63,9 @@ function JigsawPiece({
   onDragStart,
   onDragOver,
   onDrop,
-  onTouchStart,
-  onTouchEnd,
+  onClick,
   isDragging,
+  isSelected,
   isComplete,
   showDebugNumbers,
 }: {
@@ -74,29 +74,34 @@ function JigsawPiece({
   onDragStart: (index: number) => void;
   onDragOver: (e: React.DragEvent, index: number) => void;
   onDrop: (index: number) => void;
-  onTouchStart: (index: number) => void;
-  onTouchEnd: (index: number) => void;
+  onClick: (index: number) => void;
   isDragging: boolean;
+  isSelected: boolean;
   isComplete: boolean;
   showDebugNumbers: boolean;
 }) {
   return (
     <div
+      data-piece-index={index}
       draggable={!isComplete}
       onDragStart={() => onDragStart(index)}
       onDragOver={(e) => onDragOver(e, index)}
       onDrop={() => onDrop(index)}
-      onTouchStart={() => onTouchStart(index)}
-      onTouchEnd={() => onTouchEnd(index)}
-      className={`relative rounded-md p-1 transition-all duration-700 ${
+      onClick={() => onClick(index)}
+      className={`relative rounded-md p-1 transition-all duration-300 select-none ${
         isComplete
-          ? "scale-[1.2] sm:scale-[1.5] cursor-default"
-          : isDragging
-            ? "opacity-40 scale-95 cursor-move"
-            : "hover:bg-base-100/60 hover:scale-105 cursor-move active:scale-110"
+          ? "scale-[1.5] cursor-default"
+          : isSelected
+            ? "scale-110 ring-4 ring-primary shadow-lg cursor-pointer"
+            : isDragging
+              ? "opacity-40 scale-95 cursor-move"
+              : "hover:bg-base-100/60 hover:scale-105 cursor-pointer active:scale-110"
       }`}
     >
-      <svg viewBox="-20 -20 140 140" className="h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20 lg:h-24 lg:w-24">
+      <svg
+        viewBox="-20 -20 140 140"
+        className="h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20 lg:h-24 lg:w-24"
+      >
         <path
           d={piecePath(piece)}
           fill="hsl(var(--b2))"
@@ -106,7 +111,9 @@ function JigsawPiece({
       </svg>
       {showDebugNumbers && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-sm sm:text-lg md:text-xl lg:text-2xl font-bold text-white">{piece.id}</span>
+          <span className="text-sm sm:text-lg md:text-xl lg:text-2xl font-bold text-white">
+            {piece.id}
+          </span>
         </div>
       )}
     </div>
@@ -129,7 +136,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   if (loaderData.status === "missing") {
     return (
       <>
-        <h1 className="mb-4 text-2xl sm:text-3xl md:text-4xl font-bold tracking-widest">Puzzle</h1>
+        <h1 className="mb-4 text-2xl sm:text-3xl md:text-4xl font-bold tracking-widest">
+          Puzzle
+        </h1>
         <p className="text-center text-sm sm:text-base text-base-content/80 px-4">
           Today&apos;s puzzle is not available yet. Please try again later.
         </p>
@@ -161,7 +170,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     puzzle.order.map((i) => pieces[i]),
   );
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [touchStartIndex, setTouchStartIndex] = useState<number | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [isComplete, setIsComplete] = useState<boolean>(false);
   const [time, setTime] = useState<string | null>(null);
 
@@ -181,7 +190,6 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       return;
     }
 
-    // Swap the pieces
     const newPieces = [...currentPieces];
     [newPieces[draggedIndex], newPieces[dropIndex]] = [
       newPieces[dropIndex],
@@ -190,35 +198,27 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     setCurrentPieces(newPieces);
     setDraggedIndex(null);
 
-    // Check if puzzle is complete after updating state
     setTimeout(() => checkComplete(newPieces), 0);
   };
 
-  const handleTouchStart = (index: number) => {
+  const handleClick = (index: number) => {
     if (isComplete) return;
-    setTouchStartIndex(index);
-    setDraggedIndex(index);
-  };
 
-  const handleTouchEnd = (index: number) => {
-    if (isComplete || touchStartIndex === null || touchStartIndex === index) {
-      setTouchStartIndex(null);
-      setDraggedIndex(null);
-      return;
+    if (selectedIndex === null) {
+      setSelectedIndex(index);
+    } else if (selectedIndex === index) {
+      setSelectedIndex(null);
+    } else {
+      const newPieces = [...currentPieces];
+      [newPieces[selectedIndex], newPieces[index]] = [
+        newPieces[index],
+        newPieces[selectedIndex],
+      ];
+      setCurrentPieces(newPieces);
+      setSelectedIndex(null);
+
+      setTimeout(() => checkComplete(newPieces), 0);
     }
-
-    // Swap the pieces
-    const newPieces = [...currentPieces];
-    [newPieces[touchStartIndex], newPieces[index]] = [
-      newPieces[index],
-      newPieces[touchStartIndex],
-    ];
-    setCurrentPieces(newPieces);
-    setTouchStartIndex(null);
-    setDraggedIndex(null);
-
-    // Check if puzzle is complete after updating state
-    setTimeout(() => checkComplete(newPieces), 0);
   };
 
   const checkComplete = (piecesToCheck: Piece[]) => {
@@ -262,11 +262,26 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <h1 className="mb-4 text-2xl sm:text-3xl md:text-4xl font-bold tracking-widest">PUZZDLE</h1>
+      <h1 className="mb-4 text-2xl sm:text-3xl md:text-4xl font-bold tracking-widest">
+        PUZZDLE
+      </h1>
       <p className="mb-4 text-sm sm:text-base">Date: {date}</p>
-
+      {isComplete ? (
+        <div className="m-6 text-xl sm:text-2xl md:text-3xl font-bold">
+          Time: {time}
+        </div>
+      ) : (
+        <>
+          <p className="text-sm sm:text-base">
+            PC: Drag a piece to swap it with another
+          </p>
+          <p className="mb-4 text-sm sm:text-base">
+            Phone: Tap 2 pieces to swap them
+          </p>
+        </>
+      )}
       <div
-        className={`mb-6 grid grid-cols-5 bg-white rounded-lg p-2 sm:p-3 md:p-4 transition-all duration-700 ${
+        className={`puzzle-grid mb-6 grid grid-cols-5 bg-white rounded-lg p-2 sm:p-3 md:p-4 transition-all duration-700 ${
           isComplete ? "gap-0" : "gap-1 sm:gap-2 md:gap-3"
         }`}
       >
@@ -278,17 +293,14 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             onDragStart={handleDragStart}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
+            onClick={handleClick}
             isDragging={draggedIndex === index}
+            isSelected={selectedIndex === index}
             isComplete={isComplete}
             showDebugNumbers={process.env.NODE_ENV === "development"}
           />
         ))}
       </div>
-      {isComplete && (
-        <div className="mt-6 text-xl sm:text-2xl md:text-3xl font-bold">Time: {time}</div>
-      )}
     </>
   );
 }
