@@ -19,7 +19,7 @@ services:
     environment:
       DATABASE_URL: postgres://postgres:postgres@db:5432/wordle
       RAILS_ENV: production
-      SECRET_KEY_BASE: dummy-secret-key-base-for-development-only
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-secret-key-base}
     depends_on:
       db:
         condition: service_healthy

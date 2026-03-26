@@ -19,4 +19,12 @@ COPY --from=build /app .
 ENV RAILS_ENV=production
 EXPOSE 8080
 
+# Entrypoint script to run migrations before starting the server
+RUN echo '#!/bin/sh' > /app/docker-entrypoint.sh && \
+    echo 'set -e' >> /app/docker-entrypoint.sh && \
+    echo 'bundle exec rails db:migrate' >> /app/docker-entrypoint.sh && \
+    echo 'exec "$@"' >> /app/docker-entrypoint.sh && \
+    chmod +x /app/docker-entrypoint.sh
+
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]

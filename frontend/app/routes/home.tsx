@@ -232,7 +232,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       <p className="mb-4">Date: {date}</p>
 
       <div
-        className={`mb-6 grid grid-cols-5 rounded-lg bg-base-200 p-3 transition-all duration-700 ${
+        className={`mb-6 grid grid-cols-5 bg-white rounded-lg p-3 transition-all duration-700 ${
           isComplete ? "gap-0" : "gap-3"
         }`}
       >

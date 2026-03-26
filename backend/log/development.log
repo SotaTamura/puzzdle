@@ -1,273 +1,100 @@
-  [1m[35m (107.2ms)[0m  [1m[35mCREATE DATABASE "wordle" ENCODING = 'unicode'[0m
-  [1m[35m (105.8ms)[0m  [1m[35mCREATE DATABASE "wordle" ENCODING = 'unicode'[0m
-  [1m[35m (105.8ms)[0m  [1m[35mCREATE DATABASE "wordle" ENCODING = 'unicode'[0m
-  [1m[35mSQL (0.2ms)[0m  [1m[35mSET search_path TO public[0m
-  [1m[35m (33.0ms)[0m  [1m[35mCREATE DATABASE "wordle" ENCODING = 'unicode'[0m
-  [1m[35m (3.9ms)[0m  [1m[35mCREATE TABLE "schema_migrations" ("version" character varying NOT NULL PRIMARY KEY)[0m
-  [1m[35m (2.3ms)[0m  [1m[35mCREATE TABLE "ar_internal_metadata" ("key" character varying NOT NULL PRIMARY KEY, "value" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
-  [1m[35m (0.3ms)[0m  [1m[34mSELECT pg_try_advisory_lock(6855796489366776525)[0m
-  [1m[36mActiveRecord::SchemaMigration Load (1.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
-  [1m[36mActiveRecord::InternalMetadata Load (0.9ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
-  [1m[36mActiveRecord::InternalMetadata Create (0.8ms)[0m  [1m[32mINSERT INTO "ar_internal_metadata" ("key", "value", "created_at", "updated_at") VALUES ('environment', 'development', '2026-03-19 00:04:06.484259', '2026-03-19 00:04:06.484264') RETURNING "key"[0m
-Migrating to CreateWords (20260319000001)
-  [1m[36mTRANSACTION (1.6ms)[0m  [1m[35mBEGIN[0m
-  [1m[35m (7.5ms)[0m  [1m[35mCREATE TABLE "words" ("id" bigserial primary key, "word" character varying NOT NULL, "date" date NOT NULL)[0m
-  [1m[35m (0.9ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_words_on_word" ON "words" ("word")[0m
-  [1m[35m (1.0ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_words_on_date" ON "words" ("date")[0m
-  [1m[36mActiveRecord::SchemaMigration Create (0.4ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20260319000001') RETURNING "version"[0m
-  [1m[36mTRANSACTION (0.4ms)[0m  [1m[35mCOMMIT[0m
-Migrating to CreateScores (20260319000002)
-  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
-  [1m[35m (3.2ms)[0m  [1m[35mCREATE TABLE "scores" ("id" bigserial primary key, "player_name" character varying NOT NULL, "word_id" bigint NOT NULL, "attempts" integer NOT NULL, "solved" boolean DEFAULT FALSE NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_623a633bde"
-FOREIGN KEY ("word_id")
-  REFERENCES "words" ("id")
-)[0m
-  [1m[35m (1.1ms)[0m  [1m[35mCREATE INDEX "index_scores_on_word_id" ON "scores" ("word_id")[0m
-  [1m[36mActiveRecord::SchemaMigration Create (0.4ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20260319000002') RETURNING "version"[0m
-  [1m[36mTRANSACTION (0.4ms)[0m  [1m[35mCOMMIT[0m
-  [1m[35m (0.2ms)[0m  [1m[34mSELECT pg_advisory_unlock(6855796489366776525)[0m
-  [1m[36mActiveRecord::SchemaMigration Load (0.2ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
-  [1m[35mSQL (0.2ms)[0m  [1m[35mSET search_path TO public[0m
-  [1m[35mSQL (0.2ms)[0m  [1m[35mSET search_path TO "$user", public[0m
-  [1m[35mSQL (0.1ms)[0m  [1m[35mSET search_path TO public[0m
-  [1m[35mSQL (0.2ms)[0m  [1m[35mSET search_path TO "$user", public[0m
-  [1m[36mActiveRecord::SchemaMigration Load (0.9ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
-  [1m[36mWord Load (1.2ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."word" = $1 AND "words"."date" = $2 LIMIT $3[0m  [["word", "hello"], ["date", "2026-03-19"], ["LIMIT", 1]]
-  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mBEGIN[0m
-  [1m[36mWord Exists? (0.4ms)[0m  [1m[34mSELECT 1 AS one FROM "words" WHERE "words"."word" = $1 LIMIT $2[0m  [["word", "hello"], ["LIMIT", 1]]
-  [1m[36mWord Exists? (0.4ms)[0m  [1m[34mSELECT 1 AS one FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-19"], ["LIMIT", 1]]
-  [1m[36mWord Create (3.4ms)[0m  [1m[32mINSERT INTO "words" ("word", "date") VALUES ($1, $2) RETURNING "id"[0m  [["word", "hello"], ["date", "2026-03-19"]]
-  [1m[36mTRANSACTION (0.5ms)[0m  [1m[35mCOMMIT[0m
-  [1m[36mWord Load (0.3ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."word" = $1 AND "words"."date" = $2 LIMIT $3[0m  [["word", "world"], ["date", "2026-03-20"], ["LIMIT", 1]]
-  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
-  [1m[36mWord Exists? (0.7ms)[0m  [1m[34mSELECT 1 AS one FROM "words" WHERE "words"."word" = $1 LIMIT $2[0m  [["word", "world"], ["LIMIT", 1]]
-  [1m[36mWord Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-20"], ["LIMIT", 1]]
-  [1m[36mWord Create (0.3ms)[0m  [1m[32mINSERT INTO "words" ("word", "date") VALUES ($1, $2) RETURNING "id"[0m  [["word", "world"], ["date", "2026-03-20"]]
-  [1m[36mTRANSACTION (0.4ms)[0m  [1m[35mCOMMIT[0m
-  [1m[36mWord Load (0.3ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."word" = $1 AND "words"."date" = $2 LIMIT $3[0m  [["word", "react"], ["date", "2026-03-21"], ["LIMIT", 1]]
-  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
-  [1m[36mWord Exists? (0.5ms)[0m  [1m[34mSELECT 1 AS one FROM "words" WHERE "words"."word" = $1 LIMIT $2[0m  [["word", "react"], ["LIMIT", 1]]
-  [1m[36mWord Exists? (0.6ms)[0m  [1m[34mSELECT 1 AS one FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-21"], ["LIMIT", 1]]
-  [1m[36mWord Create (0.3ms)[0m  [1m[32mINSERT INTO "words" ("word", "date") VALUES ($1, $2) RETURNING "id"[0m  [["word", "react"], ["date", "2026-03-21"]]
-  [1m[36mTRANSACTION (0.4ms)[0m  [1m[35mCOMMIT[0m
-  [1m[36mWord Load (0.3ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."word" = $1 AND "words"."date" = $2 LIMIT $3[0m  [["word", "rails"], ["date", "2026-03-22"], ["LIMIT", 1]]
-  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
-  [1m[36mWord Exists? (0.7ms)[0m  [1m[34mSELECT 1 AS one FROM "words" WHERE "words"."word" = $1 LIMIT $2[0m  [["word", "rails"], ["LIMIT", 1]]
-  [1m[36mWord Exists? (0.4ms)[0m  [1m[34mSELECT 1 AS one FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-22"], ["LIMIT", 1]]
-  [1m[36mWord Create (0.4ms)[0m  [1m[32mINSERT INTO "words" ("word", "date") VALUES ($1, $2) RETURNING "id"[0m  [["word", "rails"], ["date", "2026-03-22"]]
-  [1m[36mTRANSACTION (0.7ms)[0m  [1m[35mCOMMIT[0m
-  [1m[36mWord Load (0.3ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."word" = $1 AND "words"."date" = $2 LIMIT $3[0m  [["word", "query"], ["date", "2026-03-23"], ["LIMIT", 1]]
-  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
-  [1m[36mWord Exists? (0.7ms)[0m  [1m[34mSELECT 1 AS one FROM "words" WHERE "words"."word" = $1 LIMIT $2[0m  [["word", "query"], ["LIMIT", 1]]
-  [1m[36mWord Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-23"], ["LIMIT", 1]]
-  [1m[36mWord Create (0.3ms)[0m  [1m[32mINSERT INTO "words" ("word", "date") VALUES ($1, $2) RETURNING "id"[0m  [["word", "query"], ["date", "2026-03-23"]]
-  [1m[36mTRANSACTION (0.4ms)[0m  [1m[35mCOMMIT[0m
-Started GET "/api/wordle/today" for ::1 at 2026-03-19 09:09:16 +0900
-Processing by Api::WordleController#today as */*
-Completed 500 Internal Server Error in 155ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
-
-
-  
-ActiveRecord::ConnectionNotEstablished (connection to server at "::1", port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-connection to server at "127.0.0.1", port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-)
-Caused by: PG::ConnectionBad (connection to server at "::1", port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-connection to server at "127.0.0.1", port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-)
-
-Information for: ActiveRecord::ConnectionNotEstablished (connection to server at "::1", port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-connection to server at "127.0.0.1", port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-):
-  
-app/controllers/api/wordle_controller.rb:50:in 'Api::WordleController#today_word'
-app/controllers/api/wordle_controller.rb:4:in 'Api::WordleController#today'
-
-Information for cause: PG::ConnectionBad (connection to server at "::1", port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-connection to server at "127.0.0.1", port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-):
-  
-app/controllers/api/wordle_controller.rb:50:in 'Api::WordleController#today_word'
-app/controllers/api/wordle_controller.rb:4:in 'Api::WordleController#today'
-Started GET "/api/wordle/today" for ::1 at 2026-03-19 09:09:40 +0900
-Processing by Api::WordleController#today as */*
-Completed 500 Internal Server Error in 106ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
-
-
-  
-ActiveRecord::ConnectionNotEstablished (connection to server at "::1", port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-connection to server at "127.0.0.1", port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-)
-Caused by: PG::ConnectionBad (connection to server at "::1", port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-connection to server at "127.0.0.1", port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-)
-
-Information for: ActiveRecord::ConnectionNotEstablished (connection to server at "::1", port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-connection to server at "127.0.0.1", port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-):
-  
-app/controllers/api/wordle_controller.rb:50:in 'Api::WordleController#today_word'
-app/controllers/api/wordle_controller.rb:4:in 'Api::WordleController#today'
-
-Information for cause: PG::ConnectionBad (connection to server at "::1", port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-connection to server at "127.0.0.1", port 5432 failed: Connection refused
-	Is the server running on that host and accepting TCP/IP connections?
-):
-  
-app/controllers/api/wordle_controller.rb:50:in 'Api::WordleController#today_word'
-app/controllers/api/wordle_controller.rb:4:in 'Api::WordleController#today'
-  [1m[35mSQL (0.6ms)[0m  [1m[35mCREATE EXTENSION IF NOT EXISTS "plpgsql" SCHEMA pg_catalog[0m
-  [1m[35m (0.2ms)[0m  [1m[35mDROP TABLE IF EXISTS "scores" CASCADE[0m
-  [1m[35m (5.4ms)[0m  [1m[35mCREATE TABLE "scores" ("id" bigserial primary key, "attempts" integer NOT NULL, "created_at" timestamp(6) NOT NULL, "player_name" character varying NOT NULL, "solved" boolean DEFAULT FALSE NOT NULL, "updated_at" timestamp(6) NOT NULL, "word_id" bigint NOT NULL)[0m
-  [1m[35m (1.5ms)[0m  [1m[35mCREATE INDEX "index_scores_on_word_id" ON "scores" ("word_id")[0m
-  [1m[35m (0.2ms)[0m  [1m[35mDROP TABLE IF EXISTS "words" CASCADE[0m
-  [1m[35m (5.4ms)[0m  [1m[35mCREATE TABLE "words" ("id" bigserial primary key, "date" date NOT NULL, "word" character varying NOT NULL)[0m
-  [1m[35m (1.5ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_words_on_date" ON "words" ("date")[0m
-  [1m[35m (1.2ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_words_on_word" ON "words" ("word")[0m
-  [1m[35m (1.6ms)[0m  [1m[35mALTER TABLE "scores" ADD CONSTRAINT "fk_rails_623a633bde"
-FOREIGN KEY ("word_id")
-  REFERENCES "words" ("id")
-[0m
-  [1m[35m (2.6ms)[0m  [1m[35mCREATE TABLE "schema_migrations" ("version" character varying NOT NULL PRIMARY KEY)[0m
-  [1m[36mActiveRecord::SchemaMigration Load (0.9ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
-  [1m[35m (0.9ms)[0m  [1m[32mINSERT INTO "schema_migrations" (version) VALUES (20260319000002)[0m
-  [1m[35m (0.5ms)[0m  [1m[32mINSERT INTO "schema_migrations" (version) VALUES
-(20260319000001);[0m
-  [1m[35m (2.4ms)[0m  [1m[35mCREATE TABLE "ar_internal_metadata" ("key" character varying NOT NULL PRIMARY KEY, "value" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL)[0m
-  [1m[36mActiveRecord::InternalMetadata Load (0.9ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
-  [1m[36mActiveRecord::InternalMetadata Create (0.6ms)[0m  [1m[32mINSERT INTO "ar_internal_metadata" ("key", "value", "created_at", "updated_at") VALUES ('environment', 'development', '2026-03-19 00:10:45.975375', '2026-03-19 00:10:45.975380') RETURNING "key"[0m
-  [1m[36mActiveRecord::InternalMetadata Load (0.3ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
-  [1m[36mActiveRecord::InternalMetadata Load (0.3ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
-  [1m[36mActiveRecord::InternalMetadata Create (0.4ms)[0m  [1m[32mINSERT INTO "ar_internal_metadata" ("key", "value", "created_at", "updated_at") VALUES ('schema_sha1', 'c39843ac6ba65095c3b4756751f0fba273c75881', '2026-03-19 00:10:45.978046', '2026-03-19 00:10:45.978051') RETURNING "key"[0m
-  [1m[36mActiveRecord::SchemaMigration Load (0.5ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
-  [1m[36mWord Load (0.6ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."word" = $1 LIMIT $2[0m  [["word", "hello"], ["LIMIT", 1]]
-  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
-  [1m[36mWord Exists? (0.5ms)[0m  [1m[34mSELECT 1 AS one FROM "words" WHERE "words"."word" = $1 LIMIT $2[0m  [["word", "hello"], ["LIMIT", 1]]
-  [1m[36mWord Exists? (0.4ms)[0m  [1m[34mSELECT 1 AS one FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-19"], ["LIMIT", 1]]
-  [1m[36mWord Create (0.6ms)[0m  [1m[32mINSERT INTO "words" ("date", "word") VALUES ($1, $2) RETURNING "id"[0m  [["date", "2026-03-19"], ["word", "hello"]]
-  [1m[36mTRANSACTION (0.5ms)[0m  [1m[35mCOMMIT[0m
-  [1m[36mWord Load (0.3ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."word" = $1 LIMIT $2[0m  [["word", "world"], ["LIMIT", 1]]
-  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
-  [1m[36mWord Exists? (0.6ms)[0m  [1m[34mSELECT 1 AS one FROM "words" WHERE "words"."word" = $1 LIMIT $2[0m  [["word", "world"], ["LIMIT", 1]]
-  [1m[36mWord Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-20"], ["LIMIT", 1]]
-  [1m[36mWord Create (0.2ms)[0m  [1m[32mINSERT INTO "words" ("date", "word") VALUES ($1, $2) RETURNING "id"[0m  [["date", "2026-03-20"], ["word", "world"]]
-  [1m[36mTRANSACTION (0.4ms)[0m  [1m[35mCOMMIT[0m
-  [1m[36mWord Load (0.7ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."word" = $1 LIMIT $2[0m  [["word", "react"], ["LIMIT", 1]]
-  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN[0m
-  [1m[36mWord Exists? (1.0ms)[0m  [1m[34mSELECT 1 AS one FROM "words" WHERE "words"."word" = $1 LIMIT $2[0m  [["word", "react"], ["LIMIT", 1]]
-  [1m[36mWord Exists? (0.4ms)[0m  [1m[34mSELECT 1 AS one FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-21"], ["LIMIT", 1]]
-  [1m[36mWord Create (0.3ms)[0m  [1m[32mINSERT INTO "words" ("date", "word") VALUES ($1, $2) RETURNING "id"[0m  [["date", "2026-03-21"], ["word", "react"]]
-  [1m[36mTRANSACTION (0.6ms)[0m  [1m[35mCOMMIT[0m
-  [1m[36mWord Load (0.4ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."word" = $1 LIMIT $2[0m  [["word", "rails"], ["LIMIT", 1]]
-  [1m[36mTRANSACTION (3.6ms)[0m  [1m[35mBEGIN[0m
-  [1m[36mWord Exists? (12.0ms)[0m  [1m[34mSELECT 1 AS one FROM "words" WHERE "words"."word" = $1 LIMIT $2[0m  [["word", "rails"], ["LIMIT", 1]]
-  [1m[36mWord Exists? (0.4ms)[0m  [1m[34mSELECT 1 AS one FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-22"], ["LIMIT", 1]]
-  [1m[36mWord Create (0.4ms)[0m  [1m[32mINSERT INTO "words" ("date", "word") VALUES ($1, $2) RETURNING "id"[0m  [["date", "2026-03-22"], ["word", "rails"]]
-  [1m[36mTRANSACTION (0.7ms)[0m  [1m[35mCOMMIT[0m
-  [1m[36mWord Load (2.8ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."word" = $1 LIMIT $2[0m  [["word", "query"], ["LIMIT", 1]]
-  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mBEGIN[0m
-  [1m[36mWord Exists? (0.8ms)[0m  [1m[34mSELECT 1 AS one FROM "words" WHERE "words"."word" = $1 LIMIT $2[0m  [["word", "query"], ["LIMIT", 1]]
-  [1m[36mWord Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-23"], ["LIMIT", 1]]
-  [1m[36mWord Create (0.3ms)[0m  [1m[32mINSERT INTO "words" ("date", "word") VALUES ($1, $2) RETURNING "id"[0m  [["date", "2026-03-23"], ["word", "query"]]
-  [1m[36mTRANSACTION (0.6ms)[0m  [1m[35mCOMMIT[0m
-Started GET "/api/wordle/today" for ::1 at 2026-03-19 09:11:21 +0900
-Processing by Api::WordleController#today as */*
-  [1m[36mWord Load (1.1ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-19"], ["LIMIT", 1]]
-Completed 200 OK in 89ms (Views: 0.2ms | ActiveRecord: 9.0ms (1 query, 0 cached) | GC: 0.0ms)
-
-
-Started GET "/api/wordle/today" for ::1 at 2026-03-19 09:11:43 +0900
-Processing by Api::WordleController#today as */*
-  [1m[36mWord Load (0.6ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-19"], ["LIMIT", 1]]
-Completed 200 OK in 2ms (Views: 0.1ms | ActiveRecord: 0.6ms (1 query, 0 cached) | GC: 0.0ms)
-
-
-Started GET "/api/wordle/today" for ::1 at 2026-03-19 09:11:43 +0900
-Processing by Api::WordleController#today as */*
-  [1m[36mWord Load (0.5ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-19"], ["LIMIT", 1]]
-Completed 200 OK in 1ms (Views: 0.2ms | ActiveRecord: 0.5ms (1 query, 0 cached) | GC: 0.0ms)
-
-
-Started GET "/api/wordle/today" for ::1 at 2026-03-19 09:11:44 +0900
-Processing by Api::WordleController#today as */*
-  [1m[36mWord Load (0.6ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-19"], ["LIMIT", 1]]
-Completed 200 OK in 2ms (Views: 0.1ms | ActiveRecord: 0.6ms (1 query, 0 cached) | GC: 0.0ms)
+  [1m[36mActiveRecord::SchemaMigration Load (1.2ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+Started GET "/api/puzzle/today" for ::1 at 2026-03-26 10:40:03 +0900
+Processing by Api::PuzzleController#today as */*
+  [1m[36mPuzzle Load (1.9ms)[0m  [1m[34mSELECT "puzzles".* FROM "puzzles" WHERE "puzzles"."date" = $1 LIMIT $2[0m  [["date", "2026-03-26"], ["LIMIT", 1]]
+Completed 200 OK in 72ms (Views: 0.1ms | ActiveRecord: 22.5ms (1 query, 0 cached) | GC: 0.0ms)
 
 
   [1m[36mActiveRecord::SchemaMigration Load (1.4ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
-Started GET "/api/wordle/today" for ::1 at 2026-03-19 09:12:00 +0900
-Processing by Api::WordleController#today as */*
-  [1m[36mWord Load (0.9ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-19"], ["LIMIT", 1]]
-Completed 200 OK in 91ms (Views: 0.2ms | ActiveRecord: 9.0ms (1 query, 0 cached) | GC: 0.0ms)
+  [1m[36mActiveRecord::InternalMetadata Load (1.0ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.3ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.3ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.3ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.5ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[35mSQL (0.3ms)[0m  [1m[35mSET search_path TO public[0m
+  [1m[35m (5251.1ms)[0m  [1m[35mDROP DATABASE IF EXISTS "wordle"[0m
+  [1m[36mActiveRecord::SchemaMigration Load (1.4ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.8ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.3ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.3ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::SchemaMigration Load (0.3ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.3ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[35mSQL (0.9ms)[0m  [1m[35mCREATE EXTENSION IF NOT EXISTS "plpgsql" SCHEMA pg_catalog[0m
+  [1m[35m (9.0ms)[0m  [1m[35mDROP TABLE IF EXISTS "puzzles" CASCADE[0m
+  [1m[35m (8.0ms)[0m  [1m[35mCREATE TABLE "puzzles" ("id" bigserial primary key, "created_at" timestamp(6) NOT NULL, "date" date NOT NULL, "horizontal" integer DEFAULT 0 NOT NULL, "order" integer[] DEFAULT '{}' NOT NULL, "updated_at" timestamp(6) NOT NULL, "vertical" integer DEFAULT 0 NOT NULL)[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_puzzles_on_date" ON "puzzles" ("date")[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.2ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.2ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::InternalMetadata Load (0.2ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[36mActiveRecord::InternalMetadata Load (0.2ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::InternalMetadata Update (0.9ms)[0m  [1m[33mUPDATE "ar_internal_metadata" SET "value" = 'e8dbf6a40f10ae7bcbfc9a51fa6adc42bd34971c', "updated_at" = '2026-03-26 01:45:24.209728' WHERE "ar_internal_metadata"."key" = 'schema_sha1'[0m
+  [1m[35m (0.3ms)[0m  [1m[34mSELECT pg_try_advisory_lock(6855796489366776525)[0m
+  [1m[36mActiveRecord::SchemaMigration Load (1.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.9ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "environment"]]
+  [1m[35m (0.4ms)[0m  [1m[34mSELECT pg_advisory_unlock(6855796489366776525)[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.4ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[35mSQL (0.4ms)[0m  [1m[35mSET search_path TO public[0m
+  [1m[35mSQL (0.3ms)[0m  [1m[35mSET search_path TO "$user", public[0m
+  [1m[35mSQL (0.3ms)[0m  [1m[35mSET search_path TO public[0m
+  [1m[35mSQL (0.2ms)[0m  [1m[35mSET search_path TO "$user", public[0m
+  [1m[36mActiveRecord::SchemaMigration Load (1.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[35m (27.4ms)[0m  [1m[31mDELETE FROM schema_migrations WHERE version = '20260326001056'[0m
+  [1m[36mActiveRecord::SchemaMigration Load (1.3ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::SchemaMigration Load (1.3ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[35mSQL (0.3ms)[0m  [1m[35mSET search_path TO public[0m
+  [1m[35mSQL (0.3ms)[0m  [1m[35mSET search_path TO "$user", public[0m
+  [1m[35mSQL (0.2ms)[0m  [1m[35mSET search_path TO public[0m
+  [1m[35mSQL (0.3ms)[0m  [1m[35mSET search_path TO "$user", public[0m
+  [1m[36mActiveRecord::SchemaMigration Load (2.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::SchemaMigration Load (1.5ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+Started GET "/api/puzzle/today" for ::1 at 2026-03-26 10:46:56 +0900
+Processing by Api::PuzzleController#today as */*
+  [1m[36mPuzzle Load (1.3ms)[0m  [1m[34mSELECT "puzzles".* FROM "puzzles" WHERE "puzzles"."date" = $1 LIMIT $2[0m  [["date", "2026-03-26"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.5ms)[0m  [1m[35mBEGIN[0m
+  [1m[36mPuzzle Exists? (1.0ms)[0m  [1m[34mSELECT 1 AS one FROM "puzzles" WHERE "puzzles"."date" = $1 LIMIT $2[0m  [["date", "2026-03-26"], ["LIMIT", 1]]
+  [1m[36mPuzzle Create (1.3ms)[0m  [1m[32mINSERT INTO "puzzles" ("created_at", "date", "horizontal", "order", "updated_at", "vertical") VALUES ($1, $2, $3, $4, $5, $6) RETURNING "id"[0m  [["created_at", "2026-03-26 01:46:56.526623"], ["date", "2026-03-26"], ["horizontal", 463006], ["order", "{1,4,6,18,19,17,15,22,20,2,10,23,3,14,0,12,7,5,16,9,24,11,8,13,21}"], ["updated_at", "2026-03-26 01:46:56.526623"], ["vertical", 368052]]
+  [1m[36mTRANSACTION (0.9ms)[0m  [1m[35mCOMMIT[0m
+Completed 200 OK in 64ms (Views: 0.1ms | ActiveRecord: 18.1ms (3 queries, 0 cached) | GC: 0.0ms)
 
 
-Started GET "/api/wordle/today" for ::1 at 2026-03-19 09:12:04 +0900
-Processing by Api::WordleController#today as */*
-  [1m[36mWord Load (0.5ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-19"], ["LIMIT", 1]]
-Completed 200 OK in 1ms (Views: 0.1ms | ActiveRecord: 0.5ms (1 query, 0 cached) | GC: 0.0ms)
+Started GET "/api/puzzle/today" for ::1 at 2026-03-26 10:56:36 +0900
+Processing by Api::PuzzleController#today as */*
+  [1m[36mPuzzle Load (26.7ms)[0m  [1m[34mSELECT "puzzles".* FROM "puzzles" WHERE "puzzles"."date" = $1 LIMIT $2[0m  [["date", "2026-03-26"], ["LIMIT", 1]]
+Completed 200 OK in 28ms (Views: 0.1ms | ActiveRecord: 36.0ms (1 query, 0 cached) | GC: 0.0ms)
 
 
-Started GET "/api/wordle/today" for ::1 at 2026-03-19 09:12:05 +0900
-Processing by Api::WordleController#today as */*
-  [1m[36mWord Load (0.6ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-19"], ["LIMIT", 1]]
-Completed 200 OK in 2ms (Views: 0.2ms | ActiveRecord: 0.5ms (1 query, 0 cached) | GC: 0.0ms)
+  [1m[36mActiveRecord::SchemaMigration Load (1.6ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::SchemaMigration Load (1.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mActiveRecord::SchemaMigration Load (1.3ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+Started GET "/api/puzzle/today" for ::1 at 2026-03-26 12:47:52 +0900
+Processing by Api::PuzzleController#today as */*
+  [1m[36mPuzzle Load (2.1ms)[0m  [1m[34mSELECT "puzzles".* FROM "puzzles" WHERE "puzzles"."date" = $1 LIMIT $2[0m  [["date", "2026-03-26"], ["LIMIT", 1]]
+Completed 200 OK in 138ms (Views: 0.1ms | ActiveRecord: 19.8ms (1 query, 0 cached) | GC: 19.1ms)
 
 
-Started GET "/api/wordle/today" for ::1 at 2026-03-19 09:12:07 +0900
-Processing by Api::WordleController#today as */*
-  [1m[36mWord Load (0.5ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-19"], ["LIMIT", 1]]
-Completed 200 OK in 2ms (Views: 0.1ms | ActiveRecord: 0.5ms (1 query, 0 cached) | GC: 0.0ms)
+  [1m[36mActiveRecord::SchemaMigration Load (1.4ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+Started GET "/api/puzzle/today" for ::1 at 2026-03-26 14:14:49 +0900
+Processing by Api::PuzzleController#today as */*
+  [1m[36mPuzzle Load (1.5ms)[0m  [1m[34mSELECT "puzzles".* FROM "puzzles" WHERE "puzzles"."date" = $1 LIMIT $2[0m  [["date", "2026-03-26"], ["LIMIT", 1]]
+Completed 200 OK in 67ms (Views: 0.1ms | ActiveRecord: 16.0ms (1 query, 0 cached) | GC: 0.0ms)
 
 
-Started POST "/api/wordle/guess" for ::1 at 2026-03-19 09:12:11 +0900
-Processing by Api::WordleController#guess as */*
-  Parameters: {"guess" => "aaaaa", "wordle" => {"guess" => "aaaaa"}}
-  [1m[36mWord Load (2.7ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-19"], ["LIMIT", 1]]
-Completed 200 OK in 11ms (Views: 0.1ms | ActiveRecord: 2.4ms (1 query, 0 cached) | GC: 0.0ms)
+  [1m[36mActiveRecord::SchemaMigration Load (1.7ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+Started GET "/api/puzzle/today" for ::1 at 2026-03-26 20:58:51 +0900
+Processing by Api::PuzzleController#today as */*
+  [1m[36mPuzzle Load (0.5ms)[0m  [1m[34mSELECT "puzzles".* FROM "puzzles" WHERE "puzzles"."date" = $1 LIMIT $2[0m  [["date", "2026-03-26"], ["LIMIT", 1]]
+Completed 200 OK in 73ms (Views: 0.1ms | ActiveRecord: 9.9ms (1 query, 0 cached) | GC: 0.0ms)
 
 
-Started POST "/api/wordle/guess" for ::1 at 2026-03-19 09:12:15 +0900
-Processing by Api::WordleController#guess as */*
-  Parameters: {"guess" => "jemor", "wordle" => {"guess" => "jemor"}}
-  [1m[36mWord Load (0.5ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-19"], ["LIMIT", 1]]
-Completed 200 OK in 3ms (Views: 0.1ms | ActiveRecord: 0.5ms (1 query, 0 cached) | GC: 0.0ms)
+Started GET "/api/puzzle/today" for ::1 at 2026-03-26 20:59:34 +0900
+Processing by Api::PuzzleController#today as */*
+  [1m[36mPuzzle Load (3.9ms)[0m  [1m[34mSELECT "puzzles".* FROM "puzzles" WHERE "puzzles"."date" = $1 LIMIT $2[0m  [["date", "2026-03-26"], ["LIMIT", 1]]
+Completed 200 OK in 8ms (Views: 0.5ms | ActiveRecord: 3.9ms (1 query, 0 cached) | GC: 0.0ms)
 
 
-Started GET "/api/wordle/today" for ::1 at 2026-03-19 09:13:05 +0900
-Processing by Api::WordleController#today as */*
-  [1m[36mWord Load (0.5ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-19"], ["LIMIT", 1]]
-Completed 200 OK in 3ms (Views: 0.2ms | ActiveRecord: 0.5ms (1 query, 0 cached) | GC: 0.0ms)
-
-
-Started GET "/api/wordle/today" for ::1 at 2026-03-19 09:13:20 +0900
-Processing by Api::WordleController#today as */*
-  [1m[36mWord Load (0.4ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-19"], ["LIMIT", 1]]
-Completed 200 OK in 1ms (Views: 0.4ms | ActiveRecord: 0.4ms (1 query, 0 cached) | GC: 0.0ms)
-
-
-Started GET "/api/wordle/today" for ::1 at 2026-03-19 09:16:49 +0900
-Processing by Api::WordleController#today as */*
-  [1m[36mWord Load (0.5ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-19"], ["LIMIT", 1]]
-Completed 200 OK in 2ms (Views: 0.1ms | ActiveRecord: 0.5ms (1 query, 0 cached) | GC: 0.0ms)
-
-
-Started GET "/api/wordle/today" for ::1 at 2026-03-19 09:17:26 +0900
-Processing by Api::WordleController#today as */*
-  [1m[36mWord Load (0.4ms)[0m  [1m[34mSELECT "words".* FROM "words" WHERE "words"."date" = $1 LIMIT $2[0m  [["date", "2026-03-19"], ["LIMIT", 1]]
-Completed 200 OK in 2ms (Views: 0.4ms | ActiveRecord: 0.4ms (1 query, 0 cached) | GC: 0.0ms)
+Started GET "/api/puzzle/today" for ::1 at 2026-03-26 20:59:47 +0900
+Processing by Api::PuzzleController#today as */*
+  [1m[36mPuzzle Load (1.7ms)[0m  [1m[34mSELECT "puzzles".* FROM "puzzles" WHERE "puzzles"."date" = $1 LIMIT $2[0m  [["date", "2026-03-26"], ["LIMIT", 1]]
+Completed 200 OK in 2ms (Views: 0.0ms | ActiveRecord: 1.6ms (1 query, 0 cached) | GC: 0.0ms)
 
 
